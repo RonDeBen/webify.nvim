@@ -48,4 +48,10 @@ function M.get_remote_url(remote)
     return output:gsub('%s+', '')
 end
 
+function M.get_default_branch()
+    local output = vim.fn.system { 'git', 'remote', 'show', 'origin' }
+    local branch = output:match('HEAD branch:%s+(%S+)')
+    return branch or "main" -- Fallback to "main"
+end
+
 return M

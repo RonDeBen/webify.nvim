@@ -20,7 +20,7 @@ function get_current_line()
     return r
 end
 
-function get_url(with_line)
+function get_url(with_line, branch_override)
     local remotes = git.get_remotes()
     if not remotes then
         return nil
@@ -30,15 +30,16 @@ function get_url(with_line)
     if not remote_url then
         return nil
     end
-    local base,user,repo = url_utils.split_remote_url(remote_url)
+    local base, user, repo = url_utils.split_remote_url(remote_url)
     if not base then
         return nil
     end
+    local branch = branch_override or git.get_current_branch()
     local url_to_current_file = url_utils.build_base_url_to_current_file(
         base,
         user,
         repo,
-        git.get_current_branch(),
+        branch,
         get_relative_file_path(git.get_repo_root()),
         (with_line and get_current_line() or nil)
     )
@@ -56,6 +57,10 @@ function open_in_browser(url)
     end
 end
 
+M.open_file_in_browser_on_default = function()
+    open_in_browser(get_url(false, M.get_default_branch()))
+end
+
 function yank_to_register(register, url)
     local cmd = string.format('let @%s = "%s"', register, url)
     vim.cmd(cmd)
@@ -66,6 +71,12 @@ M.open_file_in_browser = function() open_in_browser(get_url(false)) end
 M.open_line_in_browser = function() open_in_browser(get_url(true)) end
 M.yank_file_url = function(register) return yank_to_register(register, get_url(false)) end
 M.yank_line_url = function(register) return yank_to_register(register, get_url(true)) end
+
+M.open_file_in_browser_on_main = function() open_in_browser(get_url(false, "main")) end
+M.open_line_in_browser_on_main = function() open_in_browser(get_url(true, "main")) end
+M.yank_file_url_on_main = function(register) return yank_to_register(register, get_url(false, "main")) end
+M.yank_line_url_on_main = function(register) return yank_to_register(register, get_url(true, "main")) end
+
 M.get_file_url = function() return get_url(false) end
 M.get_line_url = function() return get_url(true) end
 

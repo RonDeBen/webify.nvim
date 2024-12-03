@@ -1,16 +1,27 @@
 local M = {}
 
 function M.split_remote_url(remote_url)
-    local remote_url = remote_url:gsub('http[s]+://', '')
-    remote_url = remote_url:gsub('.*@', '')
-    local pattern = '([%w%p]+)[:/]([%w%p]+)/([%w%p]+)'
-    local base,user,repo = string.match(remote_url, pattern)
+    -- Check if the URL uses SSH
+    if remote_url:match('git@') then
+        -- Replace `:` with `/` and convert SSH to HTTPS format
+        remote_url = remote_url:gsub('git@', ''):gsub(':', '/')
+    else
+        -- Remove protocol for HTTPS URLs
+        remote_url = remote_url:gsub('http[s]?://', '')
+    end
+
+    -- Match the components of the URL
+    local pattern = '([%w%p]+)/([%w%p]+)/([%w%p]+)'
+    local base, user, repo = string.match(remote_url, pattern)
+
     if not base then
-        print('pattern did not match')
+        print('Pattern did not match')
         return nil
     end
+
+    -- Remove `.git` from the repo name
     repo = repo:gsub('%.git$', '')
-    return base,user,repo
+    return base, user, repo
 end
 
 function M.build_base_url_to_current_file(base, user, repo, branch, relative_path, line)
