@@ -73,9 +73,7 @@ M.yank_file_url = function(register) return yank_to_register(register, get_url(f
 M.yank_line_url = function(register) return yank_to_register(register, get_url(true)) end
 
 M.open_file_in_browser_on_main = function() open_in_browser(get_url(false, "main")) end
-M.open_line_in_browser_on_main = function() open_in_browser(get_url(true, "main")) end
 M.yank_file_url_on_main = function(register) return yank_to_register(register, get_url(false, "main")) end
-M.yank_line_url_on_main = function(register) return yank_to_register(register, get_url(true, "main")) end
 
 M.get_file_url = function() return get_url(false) end
 M.get_line_url = function() return get_url(true) end
