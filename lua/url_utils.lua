@@ -24,16 +24,28 @@ function M.split_remote_url(remote_url)
     return base, user, repo
 end
 
+local function url_encode(str)
+    -- Encode reserved characters for URLs
+    return str:gsub("([^%w%-._~])", function(c)
+        return string.format("%%%02X", string.byte(c))
+    end)
+end
+
+
 function M.build_base_url_to_current_file(base, user, repo, branch, relative_path, line)
+    local encoded_branch = url_encode(branch)
+    local encoded_path = url_encode(relative_path)
+
     local url = nil
     if string.find(base, 'github') then
-        url = string.format('https://%s/%s/%s/blob/%s/%s', base, user, repo, branch, relative_path)
+        url = string.format('https://%s/%s/%s/blob/%s/%s', base, user, repo, encoded_branch, encoded_path)
     else
-        url = string.format('https://%s/%s/%s/-/blob/%s/%s', base, user, repo, branch, relative_path)
+        url = string.format('https://%s/%s/%s/-/blob/%s/%s', base, user, repo, encoded_branch, encoded_path)
     end
     if line then
         return string.format('%s#L%d', url, line)
     end
     return url
 end
+
 return M
